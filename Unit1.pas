@@ -19,12 +19,11 @@ type
     procedure FormCreate(Sender: TObject);
     procedure Image1Gesture(Sender: TObject; const EventInfo: TGestureEventInfo;
       var Handled: Boolean);
-    procedure Image3MouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
     procedure FloatAnimation1Finish(Sender: TObject);
+    procedure Image1Click(Sender: TObject);
+    procedure FloatAnimation2Finish(Sender: TObject);
   private
     { private êÈåæ }
-    procedure Scroll;
   public
     { public êÈåæ }
   end;
@@ -40,6 +39,16 @@ implementation
 procedure TForm1.FloatAnimation1Finish(Sender: TObject);
 begin
   FormCreate(Sender);
+end;
+
+procedure TForm1.FloatAnimation2Finish(Sender: TObject);
+begin
+  if FloatAnimation1.Inverse = true then
+  begin
+    Panel1.Position.Y := -ClientHeight;
+    Panel1.Opacity := 1;
+    FloatAnimation1.Start;
+  end;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -61,6 +70,15 @@ begin
   Panel1.Opacity := 1;
 end;
 
+procedure TForm1.Image1Click(Sender: TObject);
+var
+  s: TGestureEventInfo;
+  t: Boolean;
+begin
+  s.InertiaVector.Y := -1;   //0,1,-1
+  Image1Gesture(Sender, s, t);
+end;
+
 procedure TForm1.Image1Gesture(Sender: TObject;
   const EventInfo: TGestureEventInfo; var Handled: Boolean);
 var
@@ -68,7 +86,14 @@ var
 begin
   if EventInfo.InertiaVector.Y < 0 then
   begin
-    Scroll;
+    FloatAnimation1.Start;
+    FloatAnimation2.Start;
+    Exit;
+  end
+  else if EventInfo.InertiaVector.Y > 0 then
+  begin
+    FloatAnimation1.Inverse := true;
+    FloatAnimation2.Start;
     Exit;
   end;
   with Sender as TImage do
@@ -87,20 +112,6 @@ begin
   for s in Children do
     if (s is TImage) and (s.Tag = 0) then
       Exit;
-  Scroll;
-end;
-
-procedure TForm1.Image3MouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-var
-  s: TGestureEventInfo;
-  t: Boolean;
-begin
-  Image1Gesture(Sender, s, t);
-end;
-
-procedure TForm1.Scroll;
-begin
   FloatAnimation1.Start;
   FloatAnimation2.Start;
 end;
