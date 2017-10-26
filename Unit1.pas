@@ -62,9 +62,6 @@ begin
   Image1.Position.Y := 10;
   Image2.Position.Y := 135 + 10;
   Image3.Position.Y := 135 * 2 + 10;
-  Image1.Tag := 0;
-  Image2.Tag := 0;
-  Image3.Tag := 0;
   FloatAnimation1.StopValue := -ClientHeight;
   Panel1.Position.Y := 0;
   Panel1.Opacity := 1;
@@ -82,7 +79,7 @@ end;
 procedure TForm1.Image1Gesture(Sender: TObject;
   const EventInfo: TGestureEventInfo; var Handled: Boolean);
 var
-  s: TComponent;
+  s: TFmxObject;
 begin
   if EventInfo.InertiaVector.Y < 0 then
   begin
@@ -97,20 +94,9 @@ begin
     Exit;
   end;
   with Sender as TImage do
-  begin
-    if Tag = 0 then
-    begin
-      Tag := 1;
-      Position.X := -20;
-    end
-    else
-    begin
-      Tag := 0;
-      Position.X := 0;
-    end;
-  end;
+    Position.X := -20;
   for s in Panel1.Children do
-    if (s is TImage) and (s.Tag = 0) then
+    if (s is TImage)and(TImage(s).Position.X = 0) then
       Exit;
   FloatAnimation1.Start;
   FloatAnimation2.Start;
