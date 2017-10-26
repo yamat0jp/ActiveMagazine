@@ -75,7 +75,7 @@ var
   s: TGestureEventInfo;
   t: Boolean;
 begin
-  s.InertiaVector.Y := -1;   //0,1,-1
+  s.InertiaVector.Y := 0;   //0,1,-1
   Image1Gesture(Sender, s, t);
 end;
 
@@ -109,7 +109,7 @@ begin
       Position.X := 0;
     end;
   end;
-  for s in Children do
+  for s in Panel1.Children do
     if (s is TImage) and (s.Tag = 0) then
       Exit;
   FloatAnimation1.Start;
