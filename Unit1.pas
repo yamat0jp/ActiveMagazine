@@ -5,18 +5,26 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes,
   System.Variants,
-  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Objects;
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Objects,
+  FMX.Ani, FMX.StdCtrls;
 
 type
   TForm1 = class(TForm)
     Image1: TImage;
     Image2: TImage;
     Image3: TImage;
-    procedure FormGesture(Sender: TObject; const EventInfo: TGestureEventInfo;
+    FloatAnimation1: TFloatAnimation;
+    FloatAnimation2: TFloatAnimation;
+    Panel1: TPanel;
+    procedure FormCreate(Sender: TObject);
+    procedure Image1Gesture(Sender: TObject; const EventInfo: TGestureEventInfo;
       var Handled: Boolean);
-    procedure FormPaint(Sender: TObject; Canvas: TCanvas; const ARect: TRectF);
+    procedure Image3MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Single);
+    procedure FloatAnimation1Finish(Sender: TObject);
   private
     { private êÈåæ }
+    procedure Scroll;
   public
     { public êÈåæ }
   end;
@@ -29,56 +37,72 @@ implementation
 {$R *.fmx}
 {$R *.iPhone.fmx IOS}
 
-procedure TForm1.FormGesture(Sender: TObject;
-  const EventInfo: TGestureEventInfo; var Handled: Boolean);
+procedure TForm1.FloatAnimation1Finish(Sender: TObject);
 begin
-  if EventInfo.Location.Y < 125 then
-  begin
-    if Image1.Tag = 0 then
-      Image1.Tag := 1
-    else
-      Image1.Tag := 0;
-  end
-  else if EventInfo.Location.Y < 125 * 2 then
-  begin
-    if Image2.Tag = 0 then
-      Image2.Tag := 1
-    else
-      Image2.Tag := 0;
-  end
-  else if EventInfo.Location.Y < 125 * 3 then
-  begin
-    if Image3.Tag = 0 then
-      Image3.Tag := 1
-    else
-      Image3.Tag := 0;
-  end;
-  DoPaint(Canvas,ClientRect);
+  FormCreate(Sender);
 end;
 
-procedure TForm1.FormPaint(Sender: TObject; Canvas: TCanvas;
-  const ARect: TRectF);
-var
-  s: TRectF;
-  i: integer;
+procedure TForm1.FormCreate(Sender: TObject);
 begin
-  s := RectF(0, 0, Image1.Bitmap.Width, 125);
-  if Image1.Tag = 0 then
-    i := 0
-  else
-    i := 20;
-  Canvas.DrawBitmap(Image1.Bitmap, s, RectF(i, 0, ClientWidth + i, 125), 1);
-  if Image2.Tag = 0 then
-    i := 0
-  else
-    i := 20;
-  Canvas.DrawBitmap(Image2.Bitmap, s, RectF(i, 125, ClientWidth + i,
-    125 * 2), 1);
-  if Image3.Tag = 0 then
-    i := 0
-  else
-    i := 20;
-  Canvas.DrawBitmap(Image3.Bitmap, s, RectF(i, 125 * 2, ClientWidth + i, 125 * 3), 1);
+  Image1.Width := ClientWidth;
+  Image2.Width := ClientWidth;
+  Image3.Width := ClientWidth;
+  Image1.Position.X := 0;
+  Image2.Position.X := 0;
+  Image3.Position.X := 0;
+  Image1.Position.Y := 10;
+  Image2.Position.Y := 135 + 10;
+  Image3.Position.Y := 135 * 2 + 10;
+  Image1.Tag := 0;
+  Image2.Tag := 0;
+  Image3.Tag := 0;
+  FloatAnimation1.StopValue := -ClientHeight;
+  Panel1.Position.Y := 0;
+  Panel1.Opacity := 1;
+end;
+
+procedure TForm1.Image1Gesture(Sender: TObject;
+  const EventInfo: TGestureEventInfo; var Handled: Boolean);
+var
+  s: TComponent;
+begin
+  if EventInfo.InertiaVector.Y < 0 then
+  begin
+    Scroll;
+    Exit;
+  end;
+  with Sender as TImage do
+  begin
+    if Tag = 0 then
+    begin
+      Tag := 1;
+      Position.X := -20;
+    end
+    else
+    begin
+      Tag := 0;
+      Position.X := 0;
+    end;
+  end;
+  for s in Children do
+    if (s is TImage) and (s.Tag = 0) then
+      Exit;
+  Scroll;
+end;
+
+procedure TForm1.Image3MouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Single);
+var
+  s: TGestureEventInfo;
+  t: Boolean;
+begin
+  Image1Gesture(Sender, s, t);
+end;
+
+procedure TForm1.Scroll;
+begin
+  FloatAnimation1.Start;
+  FloatAnimation2.Start;
 end;
 
 end.
