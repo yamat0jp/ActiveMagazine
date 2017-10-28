@@ -3,7 +3,16 @@ inherited Form1_iPhone: TForm1_iPhone
   ClientWidth = 320
   DesignerMasterStyle = 2
   inherited Panel1: TPanel
-    Position.X = 32.000000000000000000
-    Position.Y = -16.000000000000000000
+    Position.X = -8.000000000000000000
+    Position.Y = 8.000000000000000000
+    inherited Image3: TImage
+      Touch.InteractiveGestures = [PressAndTap]
+    end
+    inherited Image1: TImage
+      Touch.InteractiveGestures = [PressAndTap]
+    end
+    inherited Image2: TImage
+      Touch.InteractiveGestures = [PressAndTap]
+    end
   end
 end

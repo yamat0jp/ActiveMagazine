@@ -5,23 +5,26 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes,
   System.Variants,
-  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Objects,
-  FMX.Ani, FMX.StdCtrls;
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, System.Actions,
+  FMX.ActnList, FMX.Gestures, FMX.Objects, FMX.StdCtrls, FMX.Ani;
 
 type
   TForm1 = class(TForm)
+    Panel1: TPanel;
     Image1: TImage;
     Image2: TImage;
     Image3: TImage;
+    GestureManager1: TGestureManager;
+    ActionList1: TActionList;
+    up: TAction;
+    down: TAction;
     FloatAnimation1: TFloatAnimation;
     FloatAnimation2: TFloatAnimation;
-    Panel1: TPanel;
     procedure FormCreate(Sender: TObject);
-    procedure Image1Gesture(Sender: TObject; const EventInfo: TGestureEventInfo;
-      var Handled: Boolean);
-    procedure FloatAnimation1Finish(Sender: TObject);
-    procedure Image1Click(Sender: TObject);
     procedure FloatAnimation2Finish(Sender: TObject);
+    procedure upExecute(Sender: TObject);
+    procedure downExecute(Sender: TObject);
+    procedure FloatAnimation1Finish(Sender: TObject);
   private
     { private êÈåæ }
   public
@@ -34,7 +37,12 @@ var
 implementation
 
 {$R *.fmx}
-{$R *.iPhone.fmx IOS}
+
+procedure TForm1.downExecute(Sender: TObject);
+begin
+  FloatAnimation1.Inverse := true;
+  FloatAnimation2.Start;
+end;
 
 procedure TForm1.FloatAnimation1Finish(Sender: TObject);
 begin
@@ -62,42 +70,14 @@ begin
   Image1.Position.Y := 10;
   Image2.Position.Y := 135 + 10;
   Image3.Position.Y := 135 * 2 + 10;
+  FloatAnimation1.Inverse := false;
   FloatAnimation1.StopValue := -ClientHeight;
   Panel1.Position.Y := 0;
   Panel1.Opacity := 1;
 end;
 
-procedure TForm1.Image1Click(Sender: TObject);
-var
-  s: TGestureEventInfo;
-  t: Boolean;
+procedure TForm1.upExecute(Sender: TObject);
 begin
-  s.InertiaVector.Y := 0;   //0,1,-1
-  Image1Gesture(Sender, s, t);
-end;
-
-procedure TForm1.Image1Gesture(Sender: TObject;
-  const EventInfo: TGestureEventInfo; var Handled: Boolean);
-var
-  s: TFmxObject;
-begin
-  if EventInfo.InertiaVector.Y < 0 then
-  begin
-    FloatAnimation1.Start;
-    FloatAnimation2.Start;
-    Exit;
-  end
-  else if EventInfo.InertiaVector.Y > 0 then
-  begin
-    FloatAnimation1.Inverse := true;
-    FloatAnimation2.Start;
-    Exit;
-  end;
-  with Sender as TImage do
-    Position.X := -20;
-  for s in Panel1.Children do
-    if (s is TImage)and(TImage(s).Position.X = 0) then
-      Exit;
   FloatAnimation1.Start;
   FloatAnimation2.Start;
 end;
